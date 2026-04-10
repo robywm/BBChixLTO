@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beer Barrel Chicken LTO Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6f1; color: #1a1208; padding: 24px; }
+  h1 { font-size: 20px; font-weight: 600; color: #1a1208; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .kpi { background: #fff; border: 0.5px solid #e0d8cc; border-radius: 10px; padding: 14px 16px; }
+  .kpi-label { font-size: 12px; color: #888; margin-bottom: 4px; }
+  .kpi-val { font-size: 24px; font-weight: 600; color: #1a1208; }
+  .kpi-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid #e0d8cc; margin-bottom: 20px; }
+  .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 14px; font-size: 13px; font-weight: 400; color: #888; cursor: pointer; margin-bottom: -1px; }
+  .tab-btn.active { color: #1a1208; border-bottom-color: #BA7517; font-weight: 500; }
+  .tab-btn:hover:not(.active) { color: #555; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .chart-title { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+  .chart-sub { font-size: 12px; color: #888; margin-bottom: 12px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; font-size: 12px; color: #666; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
+  .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .col-label { font-size: 13px; color: #888; margin-bottom: 8px; }
+  .callout-list { display: flex; flex-direction: column; gap: 8px; margin-top: 0; }
+  .callout { background: #f3ede4; border-radius: 8px; padding: 10px 12px; display: flex; align-items: flex-start; gap: 10px; }
+  .callout-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .callout-text { font-size: 13px; color: #1a1208; line-height: 1.5; }
+  .callout-name { font-size: 11px; color: #888; margin-top: 2px; }
+  .section-note { font-size: 11px; color: #aaa; margin-top: 12px; border-top: 0.5px solid #e0d8cc; padding-top: 8px; }
+  .card { background: #fff; border: 0.5px solid #e0d8cc; border-radius: 12px; padding: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Beer Barrel — Chicken LTO Feedback Dashboard</h1>
+<p class="subtitle">Test Kitchen feedback · April 2026 · 39 responses · Hilliard & Van Wert</p>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-label">Total responses</div><div class="kpi-val">39</div><div class="kpi-sub">Apr 2–10, 2026</div></div>
+  <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">CBR</div><div class="kpi-sub">91% positive</div></div>
+  <div class="kpi"><div class="kpi-label">Most tried</div><div class="kpi-val">HHP</div><div class="kpi-sub">15 sandwich instances</div></div>
+  <div class="kpi"><div class="kpi-label">Locations</div><div class="kpi-val">2</div><div class="kpi-sub">Van Wert · Hilliard</div></div>
+</div>
+
+<div class="card">
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="t1">Sentiment by sandwich</button>
+    <button class="tab-btn" data-tab="t2">Feedback themes</button>
+    <button class="tab-btn" data-tab="t3">Location comparison</button>
+    <button class="tab-btn" data-tab="t4">Presentation & execution</button>
+  </div>
+
+  <!-- Tab 1 -->
+  <div id="t1" class="tab-panel active">
+    <div class="chart-title">Sentiment breakdown by sandwich</div>
+    <div class="chart-sub">Classified from written feedback: positive, mixed (liked but had suggestions), or neutral</div>
+    <div class="legend">
+      <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
+      <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
+      <span><span class="swatch" style="background:#888780"></span>Neutral</span>
+    </div>
+    <div style="position:relative;width:100%;height:280px"><canvas id="c1"></canvas></div>
+    <div class="section-note">Note: some respondents tried multiple sandwiches — counts reflect sandwich instances (43 total) not unique respondents (39). HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.</div>
+  </div>
+
+  <!-- Tab 2 -->
+  <div id="t2" class="tab-panel">
+    <div class="chart-title">Top feedback themes</div>
+    <div class="chart-sub">Frequency of key themes across all 39 written responses</div>
+    <div style="position:relative;width:100%;height:340px"><canvas id="c2"></canvas></div>
+    <div class="section-note">Themes identified by reading each response; one respondent may contribute to multiple themes.</div>
+  </div>
+
+  <!-- Tab 3 -->
+  <div id="t3" class="tab-panel">
+    <div class="chart-title">Location comparison</div>
+    <div class="chart-sub">Sandwich popularity and overall sentiment by location</div>
+    <div class="two-col" style="margin-bottom:12px">
+      <div>
+        <div class="col-label">Sandwich instances tried</div>
+        <div class="legend">
+          <span><span class="swatch" style="background:#BA7517"></span>Van Wert (24 resp.)</span>
+          <span><span class="swatch" style="background:#185FA5"></span>Hilliard (15 resp.)</span>
+        </div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="c3a"></canvas></div>
+      </div>
+      <div>
+        <div class="col-label">Respondent sentiment</div>
+        <div class="legend">
+          <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
+          <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
+          <span><span class="swatch" style="background:#888780"></span>Neutral</span>
+        </div>
+        <div style="position:relative;width:100%;height:220px"><canvas id="c3b"></canvas></div>
+      </div>
+    </div>
+    <div class="section-note">Van Wert had 3 respondents try 2 sandwiches each (27 instances); Hilliard had 1 (16 instances). Sentiment is per unique respondent.</div>
+  </div>
+
+  <!-- Tab 4 -->
+  <div id="t4" class="tab-panel">
+    <div class="chart-title">Presentation & execution feedback</div>
+    <div class="chart-sub">Specific execution issues raised across all responses</div>
+    <div class="two-col">
+      <div>
+        <div class="col-label">Execution issue frequency</div>
+        <div style="position:relative;width:100%;height:260px"><canvas id="c4"></canvas></div>
+      </div>
+      <div>
+        <div class="col-label">Notable quotes</div>
+        <div class="callout-list">
+          <div class="callout"><div class="callout-dot" style="background:#1D9E75"></div><div><div class="callout-text">"The presentation made me excited before I even took a bite."</div><div class="callout-name">Brian Neilon · Hilliard · CBR</div></div></div>
+          <div class="callout"><div class="callout-dot" style="background:#EF9F27"></div><div><div class="callout-text">"Too much chicken made it hard to bite — the honey got on my hands."</div><div class="callout-name">Corina Collins · Hilliard · HHP</div></div></div>
+          <div class="callout"><div class="callout-dot" style="background:#EF9F27"></div><div><div class="callout-text">"Hot honey on top of the bun made it sticky."</div><div class="callout-name">Tammy Hayes · Hilliard · HHP</div></div></div>
+          <div class="callout"><div class="callout-dot" style="background:#1D9E75"></div><div><div class="callout-text">"Portion is enough for 2 people — buns fluffy, whole sandwich looked great."</div><div class="callout-name">Sarah Fitch · Hilliard · HHP</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-note">28 of 39 respondents (72%) made explicitly positive presentation comments. Issues listed are the minority — not a signal of overall poor execution.</div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.dispatchEvent(new Event('resize'));
+  });
+});
+
+const gridColor = 'rgba(0,0,0,0.07)';
+const tickColor = '#888';
+const pos = '#1D9E75', mix = '#EF9F27', neu = '#888780';
+const vw = '#BA7517', hl = '#185FA5';
+
+new Chart(document.getElementById('c1'), {
+  type: 'bar',
+  data: {
+    labels: ['Hot Honey Pimento (15)', 'Korean Fried Chicken (10)', 'Chicken Bacon Ranch (11)', 'Classic (7)'],
+    datasets: [
+      { label: 'Positive', data: [6, 9, 10, 6], backgroundColor: pos, borderRadius: 3 },
+      { label: 'Mixed',    data: [8, 1,  1,  1], backgroundColor: mix, borderRadius: 3 },
+      { label: 'Neutral',  data: [1, 0,  0,  0], backgroundColor: neu, borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}` } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1 }, min: 0, max: 12 }
+    }
+  }
+});
+
+new Chart(document.getElementById('c2'), {
+  type: 'bar',
+  data: {
+    labels: ['Would reorder', 'Presentation praised', 'Breading/chicken quality', 'Portion size notable', 'Better than other items', 'More sauce/topping quantity', 'Topping variety wanted', 'Coleslaw opinions', 'Sticky/messy'],
+    datasets: [{
+      data: [12, 20, 10, 6, 6, 5, 3, 3, 2],
+      backgroundColor: ['#185FA5','#1D9E75','#185FA5','#EF9F27','#1D9E75','#EF9F27','#888780','#888780','#D85A30'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} mentions` } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 }, min: 0 },
+      y: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('c3a'), {
+  type: 'bar',
+  data: {
+    labels: ['HHP', 'KFC', 'CBR', 'Classic'],
+    datasets: [
+      { label: 'Van Wert', data: [9, 7, 7, 4], backgroundColor: vw, borderRadius: 3 },
+      { label: 'Hilliard', data: [6, 3, 4, 3], backgroundColor: hl, borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 }, min: 0, max: 12 }
+    }
+  }
+});
+
+new Chart(document.getElementById('c3b'), {
+  type: 'bar',
+  data: {
+    labels: ['Van Wert', 'Hilliard'],
+    datasets: [
+      { label: 'Positive', data: [18, 10], backgroundColor: pos, borderRadius: 3 },
+      { label: 'Mixed',    data: [5,  5],  backgroundColor: mix, borderRadius: 3 },
+      { label: 'Neutral',  data: [1,  0],  backgroundColor: neu, borderRadius: 3 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
+      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 }, min: 0, max: 22 }
+    }
+  }
+});
+
+new Chart(document.getElementById('c4'), {
+  type: 'bar',
+  data: {
+    labels: ['Sticky/messy honey', 'Portion too large to eat', 'Bun should be toasted', 'Paper liner on plate', 'Sharper knife needed', 'Needs more condiment'],
+    datasets: [{
+      data: [2, 2, 1, 1, 1, 1],
+      backgroundColor: ['#D85A30','#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27'],
+      borderRadius: 3
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} mention${ctx.parsed.x > 1 ? 's' : ''}` } } },
+    scales: {
+      x: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1 }, min: 0, max: 3 },
+      y: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>
