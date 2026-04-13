@@ -10,12 +10,15 @@
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6f1; color: #1a1208; padding: 24px; }
   h1 { font-size: 20px; font-weight: 600; color: #1a1208; margin-bottom: 4px; }
   .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+  .round-toggle { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .round-btn { background: #fff; border: 1px solid #e0d8cc; border-radius: 20px; padding: 6px 16px; font-size: 13px; cursor: pointer; color: #888; }
+  .round-btn.active { background: #BA7517; color: #fff; border-color: #BA7517; font-weight: 500; }
   .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
   .kpi { background: #fff; border: 0.5px solid #e0d8cc; border-radius: 10px; padding: 14px 16px; }
   .kpi-label { font-size: 12px; color: #888; margin-bottom: 4px; }
   .kpi-val { font-size: 24px; font-weight: 600; color: #1a1208; }
   .kpi-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
-  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid #e0d8cc; margin-bottom: 20px; }
+  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid #e0d8cc; margin-bottom: 20px; flex-wrap: wrap; }
   .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 14px; font-size: 13px; font-weight: 400; color: #888; cursor: pointer; margin-bottom: -1px; }
   .tab-btn.active { color: #1a1208; border-bottom-color: #BA7517; font-weight: 500; }
   .tab-btn:hover:not(.active) { color: #555; }
@@ -28,7 +31,7 @@
   .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
   .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
   .col-label { font-size: 13px; color: #888; margin-bottom: 8px; }
-  .callout-list { display: flex; flex-direction: column; gap: 8px; margin-top: 0; }
+  .callout-list { display: flex; flex-direction: column; gap: 8px; }
   .callout { background: #f3ede4; border-radius: 8px; padding: 10px 12px; display: flex; align-items: flex-start; gap: 10px; }
   .callout-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
   .callout-text { font-size: 13px; color: #1a1208; line-height: 1.5; }
@@ -40,9 +43,21 @@
 <body>
 
 <h1>Beer Barrel — Chicken LTO Feedback Dashboard</h1>
-<p class="subtitle">Test Kitchen feedback · April 2026 · 39 responses · Hilliard & Van Wert</p>
+<p class="subtitle">Test Kitchen feedback · Hilliard & Van Wert · Updated with weekend data</p>
 
-<div class="kpi-row">
+<div class="round-toggle">
+  <button class="round-btn active" data-round="weekend">Weekend (Apr 11–12) &nbsp;<span style="font-size:11px;opacity:.7">29 responses</span></button>
+  <button class="round-btn" data-round="initial">Initial Round (Apr 2–10) &nbsp;<span style="font-size:11px;opacity:.7">39 responses</span></button>
+</div>
+
+<div id="kpi-weekend" class="kpi-row">
+  <div class="kpi"><div class="kpi-label">Total responses</div><div class="kpi-val">29</div><div class="kpi-sub">Apr 11–12, 2026</div></div>
+  <div class="kpi"><div class="kpi-label">Most tried</div><div class="kpi-val">CBR</div><div class="kpi-sub">16 of 29 respondents</div></div>
+  <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">KFC</div><div class="kpi-sub">100% positive</div></div>
+  <div class="kpi"><div class="kpi-label">Top new issue</div><div class="kpi-val">Ranch</div><div class="kpi-sub">seasoning on chicken</div></div>
+</div>
+
+<div id="kpi-initial" class="kpi-row" style="display:none">
   <div class="kpi"><div class="kpi-label">Total responses</div><div class="kpi-val">39</div><div class="kpi-sub">Apr 2–10, 2026</div></div>
   <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">CBR</div><div class="kpi-sub">91% positive</div></div>
   <div class="kpi"><div class="kpi-label">Most tried</div><div class="kpi-val">HHP</div><div class="kpi-sub">15 sandwich instances</div></div>
@@ -57,42 +72,39 @@
     <button class="tab-btn" data-tab="t4">Presentation & execution</button>
   </div>
 
-  <!-- Tab 1 -->
   <div id="t1" class="tab-panel active">
     <div class="chart-title">Sentiment breakdown by sandwich</div>
-    <div class="chart-sub">Classified from written feedback: positive, mixed (liked but had suggestions), or neutral</div>
+    <div id="t1-sub" class="chart-sub">Weekend (Apr 11–12) · classified from written feedback</div>
     <div class="legend">
       <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
       <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
       <span><span class="swatch" style="background:#888780"></span>Neutral</span>
     </div>
     <div style="position:relative;width:100%;height:280px"><canvas id="c1"></canvas></div>
-    <div class="section-note">Note: some respondents tried multiple sandwiches — counts reflect sandwich instances (43 total) not unique respondents (39). HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.</div>
+    <div id="t1-note" class="section-note">Weekend: CBR dominated with 16 of 29 responses. KFC had a clean sweep — all 3 respondents strongly positive. CBR mixed feedback concentrated around ranch seasoning intensity on the chicken. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.</div>
   </div>
 
-  <!-- Tab 2 -->
   <div id="t2" class="tab-panel">
     <div class="chart-title">Top feedback themes</div>
-    <div class="chart-sub">Frequency of key themes across all 39 written responses</div>
+    <div id="t2-sub" class="chart-sub">Weekend (Apr 11–12) · frequency of key themes across all 29 responses</div>
     <div style="position:relative;width:100%;height:340px"><canvas id="c2"></canvas></div>
     <div class="section-note">Themes identified by reading each response; one respondent may contribute to multiple themes.</div>
   </div>
 
-  <!-- Tab 3 -->
   <div id="t3" class="tab-panel">
     <div class="chart-title">Location comparison</div>
-    <div class="chart-sub">Sandwich popularity and overall sentiment by location</div>
+    <div id="t3-sub" class="chart-sub">Weekend (Apr 11–12) · sandwich popularity and sentiment by location</div>
     <div class="two-col" style="margin-bottom:12px">
       <div>
-        <div class="col-label">Sandwich instances tried</div>
+        <div class="col-label">Sandwich instances by location</div>
         <div class="legend">
-          <span><span class="swatch" style="background:#BA7517"></span>Van Wert (24 resp.)</span>
-          <span><span class="swatch" style="background:#185FA5"></span>Hilliard (15 resp.)</span>
+          <span><span class="swatch" style="background:#BA7517"></span>Van Wert</span>
+          <span><span class="swatch" style="background:#185FA5"></span>Hilliard</span>
         </div>
         <div style="position:relative;width:100%;height:220px"><canvas id="c3a"></canvas></div>
       </div>
       <div>
-        <div class="col-label">Respondent sentiment</div>
+        <div class="col-label">Respondent sentiment by location</div>
         <div class="legend">
           <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
           <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
@@ -101,13 +113,12 @@
         <div style="position:relative;width:100%;height:220px"><canvas id="c3b"></canvas></div>
       </div>
     </div>
-    <div class="section-note">Van Wert had 3 respondents try 2 sandwiches each (27 instances); Hilliard had 1 (16 instances). Sentiment is per unique respondent.</div>
+    <div id="t3-note" class="section-note">Weekend: Van Wert strongly favored CBR (13 of 20 responses). Hilliard had more variety across all 4 sandwiches. Sentiment was strong at both locations.</div>
   </div>
 
-  <!-- Tab 4 -->
   <div id="t4" class="tab-panel">
     <div class="chart-title">Presentation & execution feedback</div>
-    <div class="chart-sub">Specific execution issues raised across all responses</div>
+    <div id="t4-sub" class="chart-sub">Weekend (Apr 11–12) · specific execution issues raised across 29 responses</div>
     <div class="two-col">
       <div>
         <div class="col-label">Execution issue frequency</div>
@@ -115,19 +126,195 @@
       </div>
       <div>
         <div class="col-label">Notable quotes</div>
-        <div class="callout-list">
-          <div class="callout"><div class="callout-dot" style="background:#1D9E75"></div><div><div class="callout-text">"The presentation made me excited before I even took a bite."</div><div class="callout-name">Brian Neilon · Hilliard · CBR</div></div></div>
-          <div class="callout"><div class="callout-dot" style="background:#EF9F27"></div><div><div class="callout-text">"Too much chicken made it hard to bite — the honey got on my hands."</div><div class="callout-name">Corina Collins · Hilliard · HHP</div></div></div>
-          <div class="callout"><div class="callout-dot" style="background:#EF9F27"></div><div><div class="callout-text">"Hot honey on top of the bun made it sticky."</div><div class="callout-name">Tammy Hayes · Hilliard · HHP</div></div></div>
-          <div class="callout"><div class="callout-dot" style="background:#1D9E75"></div><div><div class="callout-text">"Portion is enough for 2 people — buns fluffy, whole sandwich looked great."</div><div class="callout-name">Sarah Fitch · Hilliard · HHP</div></div></div>
-        </div>
+        <div class="callout-list" id="callout-list"></div>
       </div>
     </div>
-    <div class="section-note">28 of 39 respondents (72%) made explicitly positive presentation comments. Issues listed are the minority — not a signal of overall poor execution.</div>
+    <div id="t4-note" class="section-note">Ranch seasoning directly on the chicken breast emerged as the dominant new issue this weekend — 4 separate respondents flagged it. Presentation was broadly praised; the paper liner is a recurring minor complaint across both rounds.</div>
   </div>
 </div>
 
 <script>
+const pos='#1D9E75', mix='#EF9F27', neu='#888780', vw='#BA7517', hl='#185FA5';
+const gridColor='rgba(0,0,0,0.07)', tickColor='#888';
+
+const data = {
+  weekend: {
+    sentiment: {
+      labels:['Hot Honey Pimento (4)','Korean Fried Chicken (3)','Chicken Bacon Ranch (16)','Classic (6)'],
+      positive:[3,3,10,4], mixed:[1,0,5,2], neutral:[0,0,1,0]
+    },
+    themes:{
+      labels:['Would reorder / add to menu','Presentation praised','Breading & chicken quality','Better than other items','Portion size notable','Ranch seasoning too heavy','Pickle placement issue','Paper liner issue','Wants topping variety'],
+      data:[14,15,8,7,5,4,2,2,2],
+      colors:['#185FA5','#1D9E75','#185FA5','#1D9E75','#EF9F27','#D85A30','#EF9F27','#EF9F27','#888780']
+    },
+    locSandwich:{ vw:[2,1,13,4], hl:[2,2,3,2] },
+    locSentiment:{ vw:[14,5,1], hl:[7,2,0] },
+    execution:{
+      labels:['Ranch seasoning too heavy','Chicken too large for bun','Paper liner gets soggy','Pickle placed under fries','Wants wet naps with honey'],
+      data:[4,3,2,2,1],
+      colors:['#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27']
+    },
+    callouts:[
+      {c:'#EF9F27', t:'"Everything was very tasty — only complaint was too much ranch seasoning on the chicken itself."', n:'Larry Copeland · Van Wert · CBR'},
+      {c:'#1D9E75', t:'"The most tender piece of chicken I have ever had. Great flavor!"', n:'Lisa Rhonehouse · Van Wert · CBR'},
+      {c:'#1D9E75', t:'"This is my new favorite — love the slaw, very refreshing."', n:'Emily Copeland · Van Wert · KFC'},
+      {c:'#EF9F27', t:'"I would have preferred it not served on paper — juice soaks through with the knife in it."', n:'Emily Copeland · Van Wert · KFC'}
+    ],
+    notes:{
+      t1:'Weekend: CBR dominated with 16 of 29 responses. KFC had a clean sweep — all 3 respondents strongly positive. CBR mixed feedback concentrated around ranch seasoning intensity on the chicken. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.',
+      t3:'Weekend: Van Wert strongly favored CBR (13 of 20 responses). Hilliard had more variety across all 4 sandwiches. Sentiment was strong at both locations — Van Wert had slightly more mixed responses, mostly tied to ranch seasoning feedback.',
+      t4:'Ranch seasoning directly on the chicken breast emerged as the dominant new issue this weekend — 4 separate respondents flagged it. Presentation was broadly praised; the paper liner is a recurring minor complaint across both rounds.'
+    }
+  },
+  initial: {
+    sentiment:{
+      labels:['Hot Honey Pimento (15)','Korean Fried Chicken (10)','Chicken Bacon Ranch (11)','Classic (7)'],
+      positive:[6,9,10,6], mixed:[8,1,1,1], neutral:[1,0,0,0]
+    },
+    themes:{
+      labels:['Would reorder','Presentation praised','Breading & chicken quality','Portion size notable','Better than other items','More sauce/topping quantity','Topping variety wanted','Coleslaw opinions','Sticky / messy'],
+      data:[12,20,10,6,6,5,3,3,2],
+      colors:['#185FA5','#1D9E75','#185FA5','#EF9F27','#1D9E75','#EF9F27','#888780','#888780','#D85A30']
+    },
+    locSandwich:{ vw:[9,7,7,4], hl:[6,3,4,3] },
+    locSentiment:{ vw:[18,5,1], hl:[10,5,0] },
+    execution:{
+      labels:['Sticky/messy honey','Portion too large to eat','Bun should be toasted','Paper liner on plate','Sharper knife needed','Needs more condiment'],
+      data:[2,2,1,1,1,1],
+      colors:['#D85A30','#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27']
+    },
+    callouts:[
+      {c:'#1D9E75', t:'"The presentation made me excited before I even took a bite."', n:'Brian Neilon · Hilliard · CBR'},
+      {c:'#EF9F27', t:'"Too much chicken made it hard to bite — the honey got on my hands."', n:'Corina Collins · Hilliard · HHP'},
+      {c:'#EF9F27', t:'"Hot honey on top of the bun made it sticky."', n:'Tammy Hayes · Hilliard · HHP'},
+      {c:'#1D9E75', t:'"Portion is enough for 2 people — buns fluffy, whole sandwich looked great."', n:'Sarah Fitch · Hilliard · HHP'}
+    ],
+    notes:{
+      t1:'Initial round: some respondents tried multiple sandwiches — counts reflect sandwich instances (43 total) not unique respondents (39). Mixed feedback was concentrated almost entirely in HHP. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.',
+      t3:'Initial round: Van Wert had 3 respondents try 2 sandwiches each. Sentiment is per unique respondent. Mixed feedback was concentrated almost entirely in HHP, mostly around stickiness and sauce quantity.',
+      t4:'28 of 39 respondents (72%) made explicitly positive presentation comments. Issues listed are the minority. Stickiness from hot honey was the dominant execution complaint in the initial round.'
+    }
+  }
+};
+
+let round = 'weekend';
+let charts = {};
+
+function destroyCharts() { Object.values(charts).forEach(c => { if(c) c.destroy(); }); charts = {}; }
+
+function render(r) {
+  destroyCharts();
+  const d = data[r];
+  const label = r === 'weekend' ? 'Weekend (Apr 11–12)' : 'Initial round (Apr 2–10)';
+
+  document.getElementById('t1-sub').textContent = label + ' · classified from written feedback';
+  document.getElementById('t2-sub').textContent = label + ' · frequency of key themes';
+  document.getElementById('t3-sub').textContent = label + ' · sandwich popularity and sentiment by location';
+  document.getElementById('t4-sub').textContent = label + ' · specific execution issues raised';
+  document.getElementById('t1-note').textContent = d.notes.t1;
+  document.getElementById('t3-note').textContent = d.notes.t3;
+  document.getElementById('t4-note').textContent = d.notes.t4;
+
+  document.getElementById('kpi-weekend').style.display = r === 'weekend' ? 'grid' : 'none';
+  document.getElementById('kpi-initial').style.display  = r === 'initial'  ? 'grid' : 'none';
+
+  document.getElementById('callout-list').innerHTML = d.callouts.map(c =>
+    `<div class="callout"><div class="callout-dot" style="background:${c.c}"></div><div><div class="callout-text">${c.t}</div><div class="callout-name">${c.n}</div></div></div>`
+  ).join('');
+
+  charts.c1 = new Chart(document.getElementById('c1'), {
+    type:'bar',
+    data:{
+      labels:d.sentiment.labels,
+      datasets:[
+        {label:'Positive', data:d.sentiment.positive, backgroundColor:pos, borderRadius:3},
+        {label:'Mixed',    data:d.sentiment.mixed,    backgroundColor:mix, borderRadius:3},
+        {label:'Neutral',  data:d.sentiment.neutral,  backgroundColor:neu, borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}`}}},
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{color:tickColor, font:{size:11}}},
+        y:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:1}, min:0, max:12}
+      }
+    }
+  });
+
+  charts.c2 = new Chart(document.getElementById('c2'), {
+    type:'bar',
+    data:{
+      labels:d.themes.labels,
+      datasets:[{data:d.themes.data, backgroundColor:d.themes.colors, borderRadius:3}]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} mentions`}}},
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:2}, min:0},
+        y:{grid:{display:false}, ticks:{color:tickColor, font:{size:11}}}
+      }
+    }
+  });
+
+  charts.c3a = new Chart(document.getElementById('c3a'), {
+    type:'bar',
+    data:{
+      labels:['HHP','KFC','CBR','Classic'],
+      datasets:[
+        {label:'Van Wert', data:d.locSandwich.vw, backgroundColor:vw, borderRadius:3},
+        {label:'Hilliard', data:d.locSandwich.hl, backgroundColor:hl, borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{color:tickColor, font:{size:11}}},
+        y:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:2}, min:0, max:16}
+      }
+    }
+  });
+
+  charts.c3b = new Chart(document.getElementById('c3b'), {
+    type:'bar',
+    data:{
+      labels:['Van Wert','Hilliard'],
+      datasets:[
+        {label:'Positive', data:[d.locSentiment.vw[0],d.locSentiment.hl[0]], backgroundColor:pos, borderRadius:3},
+        {label:'Mixed',    data:[d.locSentiment.vw[1],d.locSentiment.hl[1]], backgroundColor:mix, borderRadius:3},
+        {label:'Neutral',  data:[d.locSentiment.vw[2],d.locSentiment.hl[2]], backgroundColor:neu, borderRadius:3}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{color:tickColor, font:{size:11}}},
+        y:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:2}, min:0, max:22}
+      }
+    }
+  });
+
+  charts.c4 = new Chart(document.getElementById('c4'), {
+    type:'bar',
+    data:{
+      labels:d.execution.labels,
+      datasets:[{data:d.execution.data, backgroundColor:d.execution.colors, borderRadius:3}]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} mention${ctx.parsed.x>1?'s':''}`}}},
+      scales:{
+        x:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:1}, min:0, max:5},
+        y:{grid:{display:false}, ticks:{color:tickColor, font:{size:11}}}
+      }
+    }
+  });
+}
+
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -138,109 +325,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-const gridColor = 'rgba(0,0,0,0.07)';
-const tickColor = '#888';
-const pos = '#1D9E75', mix = '#EF9F27', neu = '#888780';
-const vw = '#BA7517', hl = '#185FA5';
-
-new Chart(document.getElementById('c1'), {
-  type: 'bar',
-  data: {
-    labels: ['Hot Honey Pimento (15)', 'Korean Fried Chicken (10)', 'Chicken Bacon Ranch (11)', 'Classic (7)'],
-    datasets: [
-      { label: 'Positive', data: [6, 9, 10, 6], backgroundColor: pos, borderRadius: 3 },
-      { label: 'Mixed',    data: [8, 1,  1,  1], backgroundColor: mix, borderRadius: 3 },
-      { label: 'Neutral',  data: [1, 0,  0,  0], backgroundColor: neu, borderRadius: 3 }
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}` } } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
-      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1 }, min: 0, max: 12 }
-    }
-  }
+document.querySelectorAll('.round-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    round = btn.dataset.round;
+    render(round);
+  });
 });
 
-new Chart(document.getElementById('c2'), {
-  type: 'bar',
-  data: {
-    labels: ['Would reorder', 'Presentation praised', 'Breading/chicken quality', 'Portion size notable', 'Better than other items', 'More sauce/topping quantity', 'Topping variety wanted', 'Coleslaw opinions', 'Sticky/messy'],
-    datasets: [{
-      data: [12, 20, 10, 6, 6, 5, 3, 3, 2],
-      backgroundColor: ['#185FA5','#1D9E75','#185FA5','#EF9F27','#1D9E75','#EF9F27','#888780','#888780','#D85A30'],
-      borderRadius: 3
-    }]
-  },
-  options: {
-    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} mentions` } } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 }, min: 0 },
-      y: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } }
-    }
-  }
-});
-
-new Chart(document.getElementById('c3a'), {
-  type: 'bar',
-  data: {
-    labels: ['HHP', 'KFC', 'CBR', 'Classic'],
-    datasets: [
-      { label: 'Van Wert', data: [9, 7, 7, 4], backgroundColor: vw, borderRadius: 3 },
-      { label: 'Hilliard', data: [6, 3, 4, 3], backgroundColor: hl, borderRadius: 3 }
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
-      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 }, min: 0, max: 12 }
-    }
-  }
-});
-
-new Chart(document.getElementById('c3b'), {
-  type: 'bar',
-  data: {
-    labels: ['Van Wert', 'Hilliard'],
-    datasets: [
-      { label: 'Positive', data: [18, 10], backgroundColor: pos, borderRadius: 3 },
-      { label: 'Mixed',    data: [5,  5],  backgroundColor: mix, borderRadius: 3 },
-      { label: 'Neutral',  data: [1,  0],  backgroundColor: neu, borderRadius: 3 }
-    ]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11 } } },
-      y: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 2 }, min: 0, max: 22 }
-    }
-  }
-});
-
-new Chart(document.getElementById('c4'), {
-  type: 'bar',
-  data: {
-    labels: ['Sticky/messy honey', 'Portion too large to eat', 'Bun should be toasted', 'Paper liner on plate', 'Sharper knife needed', 'Needs more condiment'],
-    datasets: [{
-      data: [2, 2, 1, 1, 1, 1],
-      backgroundColor: ['#D85A30','#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27'],
-      borderRadius: 3
-    }]
-  },
-  options: {
-    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x} mention${ctx.parsed.x > 1 ? 's' : ''}` } } },
-    scales: {
-      x: { grid: { color: gridColor }, ticks: { color: tickColor, stepSize: 1 }, min: 0, max: 3 },
-      y: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11 } } }
-    }
-  }
-});
+render('weekend');
 </script>
 </body>
 </html>
