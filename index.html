@@ -6,168 +6,521 @@
 <title>Beer Barrel Chicken LTO Dashboard</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9f6f1; color: #1a1208; padding: 24px; }
-  h1 { font-size: 20px; font-weight: 600; color: #1a1208; margin-bottom: 4px; }
-  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
-  .round-toggle { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-  .round-btn { background: #fff; border: 1px solid #e0d8cc; border-radius: 20px; padding: 6px 16px; font-size: 13px; cursor: pointer; color: #888; }
-  .round-btn.active { background: #BA7517; color: #fff; border-color: #BA7517; font-weight: 500; }
-  .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
-  .kpi { background: #fff; border: 0.5px solid #e0d8cc; border-radius: 10px; padding: 14px 16px; }
-  .kpi-label { font-size: 12px; color: #888; margin-bottom: 4px; }
-  .kpi-val { font-size: 24px; font-weight: 600; color: #1a1208; }
-  .kpi-sub { font-size: 11px; color: #aaa; margin-top: 2px; }
-  .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid #e0d8cc; margin-bottom: 20px; flex-wrap: wrap; }
-  .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 14px; font-size: 13px; font-weight: 400; color: #888; cursor: pointer; margin-bottom: -1px; }
-  .tab-btn.active { color: #1a1208; border-bottom-color: #BA7517; font-weight: 500; }
-  .tab-btn:hover:not(.active) { color: #555; }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-  .chart-title { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
-  .chart-sub { font-size: 12px; color: #888; margin-bottom: 12px; }
-  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px; font-size: 12px; color: #666; }
-  .legend span { display: flex; align-items: center; gap: 5px; }
-  .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0; }
-  .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-  .col-label { font-size: 13px; color: #888; margin-bottom: 8px; }
-  .callout-list { display: flex; flex-direction: column; gap: 8px; }
-  .callout { background: #f3ede4; border-radius: 8px; padding: 10px 12px; display: flex; align-items: flex-start; gap: 10px; }
-  .callout-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-  .callout-text { font-size: 13px; color: #1a1208; line-height: 1.5; }
-  .callout-name { font-size: 11px; color: #888; margin-top: 2px; }
-  .section-note { font-size: 11px; color: #aaa; margin-top: 12px; border-top: 0.5px solid #e0d8cc; padding-top: 8px; }
-  .card { background: #fff; border: 0.5px solid #e0d8cc; border-radius: 12px; padding: 20px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f6f1;color:#1a1208;padding:24px}
+h1{font-size:20px;font-weight:600;margin-bottom:4px}
+.subtitle{font-size:13px;color:#888;margin-bottom:20px}
+.round-toggle{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.round-btn{background:#fff;border:1px solid #e0d8cc;border-radius:20px;padding:6px 16px;font-size:13px;cursor:pointer;color:#888}
+.round-btn.active{background:#BA7517;color:#fff;border-color:#BA7517;font-weight:500}
+.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.kpi{background:#fff;border:0.5px solid #e0d8cc;border-radius:10px;padding:14px 16px}
+.kpi-label{font-size:12px;color:#888;margin-bottom:4px}
+.kpi-val{font-size:24px;font-weight:600;color:#1a1208}
+.kpi-sub{font-size:11px;color:#aaa;margin-top:2px}
+.card{background:#fff;border:0.5px solid #e0d8cc;border-radius:12px;padding:20px}
+.tab-bar{display:flex;gap:4px;border-bottom:1px solid #e0d8cc;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;padding:8px 14px;font-size:13px;font-weight:400;color:#888;cursor:pointer;margin-bottom:-1px}
+.tab-btn.active{color:#1a1208;border-bottom-color:#BA7517;font-weight:500}
+.tab-btn:hover:not(.active){color:#555}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.chart-title{font-size:15px;font-weight:500;margin-bottom:3px}
+.chart-sub{font-size:12px;color:#888;margin-bottom:12px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:#666}
+.legend span{display:flex;align-items:center;gap:5px}
+.swatch{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+.two-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.col-label{font-size:13px;color:#888;margin-bottom:8px}
+.callout-list{display:flex;flex-direction:column;gap:8px}
+.callout{background:#f3ede4;border-radius:8px;padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+.callout-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.callout-text{font-size:13px;color:#1a1208;line-height:1.5}
+.callout-name{font-size:11px;color:#888;margin-top:2px}
+.section-note{font-size:11px;color:#aaa;margin-top:12px;border-top:0.5px solid #e0d8cc;padding-top:8px}
+
+/* Search / feedback tab */
+.search-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.search-bar input{flex:1;min-width:200px;padding:8px 12px;border:0.5px solid #e0d8cc;border-radius:8px;font-size:13px;background:#fff;color:#1a1208;outline:none}
+.search-bar input:focus{border-color:#BA7517}
+.filter-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{background:#fff;border:0.5px solid #e0d8cc;border-radius:16px;padding:5px 12px;font-size:12px;cursor:pointer;color:#666}
+.filter-btn.active{background:#1a1208;color:#fff;border-color:#1a1208}
+.result-count{font-size:12px;color:#888;margin-bottom:12px}
+.feedback-grid{display:flex;flex-direction:column;gap:10px}
+.fb-card{background:#faf7f3;border:0.5px solid #e8e0d4;border-radius:10px;padding:14px 16px}
+.fb-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.fb-name{font-size:14px;font-weight:500;color:#1a1208}
+.fb-meta{font-size:11px;color:#888;margin-top:2px}
+.fb-badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:11px;padding:3px 9px;border-radius:10px;font-weight:500}
+.badge-pos{background:#e6f8ef;color:#0f6e56}
+.badge-mix{background:#fef3e2;color:#854f0b}
+.badge-neu{background:#f1efe8;color:#5f5e5a}
+.badge-loc{background:#e6f1fb;color:#185fa5}
+.badge-sw{background:#edeafe;color:#534ab7}
+.badge-date{background:#f1efe8;color:#5f5e5a}
+.fb-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fb-field label{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#aaa;display:block;margin-bottom:3px}
+.fb-field p{font-size:12px;color:#333;line-height:1.5}
+.highlight{background:#fff3c4;border-radius:2px;padding:0 1px}
+.no-results{text-align:center;padding:40px 20px;color:#aaa;font-size:14px}
 </style>
 </head>
 <body>
 
 <h1>Beer Barrel — Chicken LTO Feedback Dashboard</h1>
-<p class="subtitle">Test Kitchen feedback · Hilliard & Van Wert · Updated with weekend data</p>
+<p class="subtitle">Test Kitchen feedback · Hilliard & Van Wert · Apr 2–14, 2026</p>
 
 <div class="round-toggle">
-  <button class="round-btn active" data-round="weekend">Weekend (Apr 11–12) &nbsp;<span style="font-size:11px;opacity:.7">29 responses</span></button>
+  <button class="round-btn active" data-round="weekend">Full Weekend (Apr 11–14) &nbsp;<span style="font-size:11px;opacity:.7">34 responses</span></button>
   <button class="round-btn" data-round="initial">Initial Round (Apr 2–10) &nbsp;<span style="font-size:11px;opacity:.7">39 responses</span></button>
 </div>
 
 <div id="kpi-weekend" class="kpi-row">
-  <div class="kpi"><div class="kpi-label">Total responses</div><div class="kpi-val">29</div><div class="kpi-sub">Apr 11–12, 2026</div></div>
-  <div class="kpi"><div class="kpi-label">Most tried</div><div class="kpi-val">CBR</div><div class="kpi-sub">16 of 29 respondents</div></div>
-  <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">KFC</div><div class="kpi-sub">100% positive</div></div>
+  <div class="kpi"><div class="kpi-label">Total responses</div><div class="kpi-val">34</div><div class="kpi-sub">Apr 11–14, 2026</div></div>
+  <div class="kpi"><div class="kpi-label">Most tried</div><div class="kpi-val">CBR</div><div class="kpi-sub">17 of 34 sandwich instances</div></div>
+  <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">KFC</div><div class="kpi-sub">83% positive (5 of 6)</div></div>
   <div class="kpi"><div class="kpi-label">Top new issue</div><div class="kpi-val">Ranch</div><div class="kpi-sub">seasoning on chicken</div></div>
 </div>
-
 <div id="kpi-initial" class="kpi-row" style="display:none">
   <div class="kpi"><div class="kpi-label">Total responses</div><div class="kpi-val">39</div><div class="kpi-sub">Apr 2–10, 2026</div></div>
-  <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">CBR</div><div class="kpi-sub">91% positive</div></div>
   <div class="kpi"><div class="kpi-label">Most tried</div><div class="kpi-val">HHP</div><div class="kpi-sub">15 sandwich instances</div></div>
-  <div class="kpi"><div class="kpi-label">Locations</div><div class="kpi-val">2</div><div class="kpi-sub">Van Wert · Hilliard</div></div>
+  <div class="kpi"><div class="kpi-label">Highest sentiment</div><div class="kpi-val">KFC</div><div class="kpi-sub">90% positive (9 of 10)</div></div>
+  <div class="kpi"><div class="kpi-label">Top issue</div><div class="kpi-val">Sticky</div><div class="kpi-sub">hot honey on hands/bun</div></div>
 </div>
 
 <div class="card">
-  <div class="tab-bar">
-    <button class="tab-btn active" data-tab="t1">Sentiment by sandwich</button>
-    <button class="tab-btn" data-tab="t2">Feedback themes</button>
-    <button class="tab-btn" data-tab="t3">Location comparison</button>
-    <button class="tab-btn" data-tab="t4">Presentation & execution</button>
-  </div>
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="t1">Sentiment by sandwich</button>
+  <button class="tab-btn" data-tab="t2">Feedback themes</button>
+  <button class="tab-btn" data-tab="t3">Location comparison</button>
+  <button class="tab-btn" data-tab="t4">Presentation & execution</button>
+  <button class="tab-btn" data-tab="t5">All individual feedback</button>
+</div>
 
-  <div id="t1" class="tab-panel active">
-    <div class="chart-title">Sentiment breakdown by sandwich</div>
-    <div id="t1-sub" class="chart-sub">Weekend (Apr 11–12) · classified from written feedback</div>
-    <div class="legend">
-      <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
-      <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
-      <span><span class="swatch" style="background:#888780"></span>Neutral</span>
+<div id="t1" class="tab-panel active">
+  <div class="chart-title">Sentiment breakdown by sandwich</div>
+  <div id="t1-sub" class="chart-sub"></div>
+  <div class="legend">
+    <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
+    <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
+    <span><span class="swatch" style="background:#888780"></span>Neutral</span>
+  </div>
+  <div style="position:relative;width:100%;height:280px"><canvas id="c1"></canvas></div>
+  <div id="t1-note" class="section-note"></div>
+</div>
+
+<div id="t2" class="tab-panel">
+  <div class="chart-title">Top feedback themes</div>
+  <div id="t2-sub" class="chart-sub"></div>
+  <div style="position:relative;width:100%;height:340px"><canvas id="c2"></canvas></div>
+  <div class="section-note">Themes identified by reading each response; one respondent may contribute to multiple themes.</div>
+</div>
+
+<div id="t3" class="tab-panel">
+  <div class="chart-title">Location comparison</div>
+  <div id="t3-sub" class="chart-sub"></div>
+  <div class="two-col" style="margin-bottom:12px">
+    <div>
+      <div class="col-label">Sandwich instances by location</div>
+      <div class="legend">
+        <span><span class="swatch" style="background:#BA7517"></span>Van Wert</span>
+        <span><span class="swatch" style="background:#185FA5"></span>Hilliard</span>
+      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="c3a"></canvas></div>
     </div>
-    <div style="position:relative;width:100%;height:280px"><canvas id="c1"></canvas></div>
-    <div id="t1-note" class="section-note">Weekend: CBR dominated with 16 of 29 responses. KFC had a clean sweep — all 3 respondents strongly positive. CBR mixed feedback concentrated around ranch seasoning intensity on the chicken. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.</div>
-  </div>
-
-  <div id="t2" class="tab-panel">
-    <div class="chart-title">Top feedback themes</div>
-    <div id="t2-sub" class="chart-sub">Weekend (Apr 11–12) · frequency of key themes across all 29 responses</div>
-    <div style="position:relative;width:100%;height:340px"><canvas id="c2"></canvas></div>
-    <div class="section-note">Themes identified by reading each response; one respondent may contribute to multiple themes.</div>
-  </div>
-
-  <div id="t3" class="tab-panel">
-    <div class="chart-title">Location comparison</div>
-    <div id="t3-sub" class="chart-sub">Weekend (Apr 11–12) · sandwich popularity and sentiment by location</div>
-    <div class="two-col" style="margin-bottom:12px">
-      <div>
-        <div class="col-label">Sandwich instances by location</div>
-        <div class="legend">
-          <span><span class="swatch" style="background:#BA7517"></span>Van Wert</span>
-          <span><span class="swatch" style="background:#185FA5"></span>Hilliard</span>
-        </div>
-        <div style="position:relative;width:100%;height:220px"><canvas id="c3a"></canvas></div>
+    <div>
+      <div class="col-label">Respondent sentiment by location</div>
+      <div class="legend">
+        <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
+        <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
+        <span><span class="swatch" style="background:#888780"></span>Neutral</span>
       </div>
-      <div>
-        <div class="col-label">Respondent sentiment by location</div>
-        <div class="legend">
-          <span><span class="swatch" style="background:#1D9E75"></span>Positive</span>
-          <span><span class="swatch" style="background:#EF9F27"></span>Mixed</span>
-          <span><span class="swatch" style="background:#888780"></span>Neutral</span>
-        </div>
-        <div style="position:relative;width:100%;height:220px"><canvas id="c3b"></canvas></div>
-      </div>
+      <div style="position:relative;width:100%;height:220px"><canvas id="c3b"></canvas></div>
     </div>
-    <div id="t3-note" class="section-note">Weekend: Van Wert strongly favored CBR (13 of 20 responses). Hilliard had more variety across all 4 sandwiches. Sentiment was strong at both locations.</div>
   </div>
+  <div id="t3-note" class="section-note"></div>
+</div>
 
-  <div id="t4" class="tab-panel">
-    <div class="chart-title">Presentation & execution feedback</div>
-    <div id="t4-sub" class="chart-sub">Weekend (Apr 11–12) · specific execution issues raised across 29 responses</div>
-    <div class="two-col">
-      <div>
-        <div class="col-label">Execution issue frequency</div>
-        <div style="position:relative;width:100%;height:260px"><canvas id="c4"></canvas></div>
-      </div>
-      <div>
-        <div class="col-label">Notable quotes</div>
-        <div class="callout-list" id="callout-list"></div>
-      </div>
+<div id="t4" class="tab-panel">
+  <div class="chart-title">Presentation & execution feedback</div>
+  <div id="t4-sub" class="chart-sub"></div>
+  <div class="two-col">
+    <div>
+      <div class="col-label">Execution issue frequency</div>
+      <div style="position:relative;width:100%;height:260px"><canvas id="c4"></canvas></div>
     </div>
-    <div id="t4-note" class="section-note">Ranch seasoning directly on the chicken breast emerged as the dominant new issue this weekend — 4 separate respondents flagged it. Presentation was broadly praised; the paper liner is a recurring minor complaint across both rounds.</div>
+    <div>
+      <div class="col-label">Notable quotes</div>
+      <div class="callout-list" id="callout-list"></div>
+    </div>
   </div>
+  <div id="t4-note" class="section-note"></div>
+</div>
+
+<div id="t5" class="tab-panel">
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search all feedback... (e.g. soggy bun, slaw, too spicy)">
+  </div>
+  <div class="filter-row" id="filter-row">
+    <button class="filter-btn active" data-filter="all">All rounds</button>
+    <button class="filter-btn" data-filter="weekend">Weekend only</button>
+    <button class="filter-btn" data-filter="initial">Initial only</button>
+    <button class="filter-btn" data-filter-loc="all" style="margin-left:8px">All locations</button>
+    <button class="filter-btn" data-filter-loc="Van Wert">Van Wert</button>
+    <button class="filter-btn" data-filter-loc="Hilliard">Hilliard</button>
+    <button class="filter-btn" data-filter-sw="all" style="margin-left:8px">All sandwiches</button>
+    <button class="filter-btn" data-filter-sw="HHP">Hot Honey Pimento</button>
+    <button class="filter-btn" data-filter-sw="KFC">Korean Fried Chicken</button>
+    <button class="filter-btn" data-filter-sw="CBR">Chicken Bacon Ranch</button>
+    <button class="filter-btn" data-filter-sw="Classic">Classic</button>
+  </div>
+  <div id="result-count" class="result-count"></div>
+  <div class="feedback-grid" id="feedback-grid"></div>
+</div>
+
 </div>
 
 <script>
-const pos='#1D9E75', mix='#EF9F27', neu='#888780', vw='#BA7517', hl='#185FA5';
-const gridColor='rgba(0,0,0,0.07)', tickColor='#888';
+const pos='#1D9E75',mix='#EF9F27',neu='#888780',vw='#BA7517',hl='#185FA5';
+const gridColor='rgba(0,0,0,0.07)',tickColor='#888';
 
-const data = {
-  weekend: {
-    sentiment: {
-      labels:['Hot Honey Pimento (4)','Korean Fried Chicken (3)','Chicken Bacon Ranch (16)','Classic (6)'],
-      positive:[3,3,10,4], mixed:[1,0,5,2], neutral:[0,0,1,0]
+// ── ALL INDIVIDUAL RESPONSES ───────────────────────────────────
+const allFeedback = [
+  // ── INITIAL ROUND (Apr 2–10) ──
+  {name:"Jeff McIntosh",loc:"Van Wert",sw:"HHP",date:"Apr 10",round:"initial",sentiment:"mixed",
+   toppings:"I liked the sauce and toppings but maybe offer pickles and onion. I also think that an unbreaded chicken patty would be nice.",
+   comparison:"Nice sandwich but you need more chicken sandwich options and I really think a grilled patty with no breading would be better.",
+   presentation:"Again make it on the grill with no breading. Healthier option for today's buyers. Sauce was great!"},
+  {name:"Michael Coleman",loc:"Van Wert",sw:"KFC",date:"Apr 10",round:"initial",sentiment:"positive",
+   toppings:"Very good flavor, cooked perfectly would definitely have it again.",
+   comparison:"As good or better.",
+   presentation:"Looked as good as it tasted."},
+  {name:"Jeff Wermer",loc:"Van Wert",sw:"HHP",date:"Apr 10",round:"initial",sentiment:"mixed",
+   toppings:"Chicken was great, pimento lacked a little flavor. Needs options of pickles, fried jalapeños, tomato, lettuce added to change it up.",
+   comparison:"Definitely liked the sandwich. Normally don't order sandwiches here.",
+   presentation:"Other fries options would be nice."},
+  {name:"Lori Wermer",loc:"Van Wert",sw:"CBR",date:"Apr 10",round:"initial",sentiment:"positive",
+   toppings:"My opinion, liked it the way it was topped.",
+   comparison:"Love all your sandwiches.",
+   presentation:"Perfect."},
+  {name:"Laura G.",loc:"Hilliard",sw:"CBR",date:"Apr 10",round:"initial",sentiment:"positive",
+   toppings:"Sandwich was pretty good and big.",
+   comparison:"Pretty good.",
+   presentation:"Excellent."},
+  {name:"Ernest Kelly",loc:"Van Wert",sw:"HHP",date:"Apr 10",round:"initial",sentiment:"mixed",
+   toppings:"Liked — needed jalapeño and lettuce, prefer pepper jack cheese.",
+   comparison:"Really good great flavor.",
+   presentation:"Loved it, perhaps add a sub-style sandwich with an au jus dip cup."},
+  {name:"Rae-Ann Sanders",loc:"Van Wert",sw:"CBR",date:"Apr 10",round:"initial",sentiment:"positive",
+   toppings:"The sauce was light and zesty! The breaded chicken was amazing! Keep the dill pickles — they really made the sandwich!!",
+   comparison:"Great flavor!",
+   presentation:"It's a beautiful sandwich."},
+  {name:"Sarah Fitch",loc:"Hilliard",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Good amount of pimento cheese and perfect hot honey. Buns are fluffy and sweet, and the chicken had probably the best breading I've ever tasted on a chicken sandwich.",
+   comparison:"I would order this again and tell others to order it 100%! Insane sandwich and cooked beautifully.",
+   presentation:"Presentation was beautiful, and honestly the portion is enough for 2 people or leftovers. The buns are fluffy and the whole sandwich looked and tasted great."},
+  {name:"Derrick Baker",loc:"Hilliard",sw:"CBR",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"Sandwich was good, I give it a 7/10. The chicken had a spicy taste to it, the bacon was very well cooked.",
+   comparison:"7/10.",
+   presentation:"The presentation was good."},
+  {name:"Andrea Myers",loc:"Hilliard",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"The sandwich was very good, but could have used a little bit more of the hot honey pimento topping.",
+   comparison:"Yes.",
+   presentation:"Looked as expected."},
+  {name:"Kelly Carthy",loc:"Hilliard",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"It needs a little more hot honey.",
+   comparison:"I would definitely order this again and I am a burger girl through and through.",
+   presentation:"It was plated well."},
+  {name:"Spencer R.",loc:"Hilliard",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"I loved the Korean! No notes. I am not a fan of tomato on chicken sandwiches but other than that. Some of the best chicken sandwiches I've ever had!",
+   comparison:"I would get the Korean over any other hand held. Over and over again!",
+   presentation:"N/A."},
+  {name:"Thomas King",loc:"Van Wert",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"Not a fan of the coleslaw.",
+   comparison:"I enjoyed the sandwich overall more than the other sandwiches and burgers I have tried.",
+   presentation:"None."},
+  {name:"Kolby Barnhart",loc:"Van Wert",sw:"CBR",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Seasoning was great and the bacon was a great touch.",
+   comparison:"I enjoyed it much more than the burgers. Very juicy and crispy.",
+   presentation:"Presentation was great!"},
+  {name:"Corina Collins",loc:"Hilliard",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"The toppings were perfect. I'm a picky eater so I'm glad I was able to order as is.",
+   comparison:"As tasty as the hot honey is it made my hands really sticky. Maybe wet naps offered with the meal would make it easier.",
+   presentation:"It seemed great that you're getting a good amount of chicken but it was actually too much chicken it made it hard to bite. I also think that contributed to getting so much honey on my hands."},
+  {name:"James Collins",loc:"Hilliard",sw:"CBR",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Toppings were all great not too much.",
+   comparison:"I like the chicken sandwich just as much as the burgers. I hope you keep the beer cheese fries — they were also fantastic.",
+   presentation:"Everything was great! Service, food, and presentation was good. I would definitely get this again or try a different flavor."},
+  {name:"Joshua Sealscott",loc:"Van Wert",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"neutral",
+   toppings:"Nope.",
+   comparison:"Smash burger was great.",
+   presentation:"Good."},
+  {name:"Jill Graves",loc:"Van Wert",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"It was delicious. Would be great with a side of coleslaw.",
+   comparison:"Nice change from hamburger.",
+   presentation:"Keep doing what you are doing!!"},
+  {name:"Bill Graves",loc:"Van Wert",sw:"Classic",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"Just needed some sauce, added mayo.",
+   comparison:"Love the smash burger.",
+   presentation:"Mel did great job."},
+  {name:"Brock Graves",loc:"Van Wert",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"The pimento cheese and hot honey mix perfectly with the savory of the chicken.",
+   comparison:"This thing was huge — could've easily split between two or take home for an extra meal.",
+   presentation:"Paired perfectly with fries."},
+  {name:"Kathy Schaadt",loc:"Van Wert",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Both were delicious — if you like spicy the Korean would be my choice.",
+   comparison:"The chicken was moist and delicious.",
+   presentation:"Very nice."},
+  {name:"Susan Hinchcliff",loc:"Van Wert",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Both very good!!",
+   comparison:"As good as any other sandwich I have had.",
+   presentation:"Good the way they were."},
+  {name:"Jarren Weppler",loc:"Hilliard",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"It was great. Flavor was on point and the crispness of the slaw was great. Really enjoyed it!",
+   comparison:"Haven't had any other food here.",
+   presentation:"Wish there wasn't paper on the plates. Always falls apart and it's annoying."},
+  {name:"Natalie Esquivel",loc:"Van Wert",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"So good! The purple cabbage on the Korean is great. The classic was my favorite.",
+   comparison:"I enjoyed it more so than other sandwiches and burgers.",
+   presentation:"Looked beautiful."},
+  {name:"Josh Cartwright",loc:"Hilliard",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Excellent combination.",
+   comparison:"A great new addition to the already great burgers and sandwiches.",
+   presentation:"Great presentation."},
+  {name:"Allan Richardson",loc:"Hilliard",sw:"Classic",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"Chicken was excellent, liked the breading.",
+   comparison:"Liked better than the sub I had.",
+   presentation:"Looks great."},
+  {name:"Sterling Richardson",loc:"Hilliard",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"mixed",
+   toppings:"Not a fan of the cheese, but I'm a picky eater. But I ate it all, so I'd say it's great.",
+   comparison:"Never tried other items here.",
+   presentation:"Presentation was good."},
+  {name:"Gregory Blackmore",loc:"Van Wert",sw:"HHP",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"They were great.",
+   comparison:"Very very good chicken sandwich.",
+   presentation:"Looked great."},
+  {name:"Bud Robeson",loc:"Van Wert",sw:"KFC",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"This sandwich was so amazing I definitely get it again.",
+   comparison:"Love the other sandwiches but would order the Korean more.",
+   presentation:"Very well made, it looked amazing but wish they toast the bun."},
+  {name:"Rick Cashel",loc:"Van Wert",sw:"CBR",date:"Apr 9",round:"initial",sentiment:"positive",
+   toppings:"All good, light breading, tender moist chicken, very good flavor!",
+   comparison:"Better than most.",
+   presentation:"Looked great when sat on table."},
+  {name:"Jason Bohyer",loc:"Van Wert",sw:"HHP",date:"Apr 8",round:"initial",sentiment:"mixed",
+   toppings:"Little bit more hot honey sauce.",
+   comparison:"Right there with it.",
+   presentation:"Presentation was good."},
+  {name:"Jessi Harman",loc:"Van Wert",sw:"CBR",date:"Apr 8",round:"initial",sentiment:"positive",
+   toppings:"It was amazing!",
+   comparison:"I would pick it over most sandwiches on the menu.",
+   presentation:"A knife better than a butter knife would be better."},
+  {name:"Ashley Crowle",loc:"Van Wert",sw:"Classic",date:"Apr 8",round:"initial",sentiment:"positive",
+   toppings:"Amazing sandwich! Chicken was juicy and the breading had great flavor.",
+   comparison:"It's a fav.",
+   presentation:"Came out looking delicious."},
+  {name:"Pete Brooker",loc:"Van Wert",sw:"CBR",date:"Apr 8",round:"initial",sentiment:"positive",
+   toppings:"Toppings were appropriate.",
+   comparison:"Chicken was crispy/crunchy breading with a tender/moist finish. Sandwich held together well, not a sloppy mess.",
+   presentation:"Presentation was done well. Bacon was noticeable."},
+  {name:"Brian Glossett",loc:"Van Wert",sw:"Classic",date:"Apr 8",round:"initial",sentiment:"positive",
+   toppings:"The sauce on it was wonderful and all the toppings paired perfectly well with it.",
+   comparison:"Really good — the breading is crispy and super flavorful.",
+   presentation:"Presentation was wonderful and came out at a decent rate."},
+  {name:"Matt Parrish",loc:"Van Wert",sw:"CBR",date:"Apr 8",round:"initial",sentiment:"positive",
+   toppings:"I think the sandwich was spot on, great all around!",
+   comparison:"I thought it was better than the smash burgers and very comparable to the burgers. A+",
+   presentation:"Really thick breaded chicken breast! Came out looking mouthwatering."},
+  {name:"Tammy Hayes",loc:"Hilliard",sw:"HHP",date:"Apr 7",round:"initial",sentiment:"mixed",
+   toppings:"Pimento cheese evened out the heat in the hot honey. Sandwich was very tasty.",
+   comparison:"Don't really have a comparison as I've only had pizza previously.",
+   presentation:"Sandwich looked great. Only complaint is that there was hot honey on top of the bun which made it sticky."},
+  {name:"Brian Neilon",loc:"Hilliard",sw:"CBR",date:"Apr 2",round:"initial",sentiment:"positive",
+   toppings:"The toppings were excellent. My only feedback would be to add less pickles — they were a little overpowering.",
+   comparison:"The piece of chicken in that sandwich was maybe the best I've ever had. This did not disappoint. I liked this better than any other burger or sandwich I've had here.",
+   presentation:"The presentation made me excited for the sandwich before I even took a bite. Between the thick piece of chicken and the overflowing bacon, the presentation was top notch."},
+  {name:"Melissa Washington",loc:"Hilliard",sw:"Classic",date:"Apr 2",round:"initial",sentiment:"positive",
+   toppings:"The sandwich was delicious... VERY juicy and the sauce was great... It was also a big sandwich... Toppings were perfect.",
+   comparison:"I think it's in a class by itself. It was the best chicken sandwich I had in years.",
+   presentation:"Looked perfect. Everything was well put together and everything was fresh!!!"},
+
+  // ── WEEKEND ROUND (Apr 11–13) ──
+  {name:"Kaitlyn Motycka",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"mixed",
+   toppings:"I would love the chicken to be tossed in the ranch seasoning instead of just sprinkled on. I would also like to see provolone cheese on it! Also just as a suggestion, a chicken Caesar sandwich would be fire.",
+   comparison:"The quality is the same across the board. I hope to see it added to the Wednesday/Thursday burger special. This sandwich is really good and I'm excited to see it come to the menu.",
+   presentation:"On the large chicken sandwich I would like it cut in half. I do not like the pickle under the fries."},
+  {name:"Mason Place",loc:"Van Wert",sw:"HHP",date:"Apr 11",round:"weekend",sentiment:"mixed",
+   toppings:"Something crunchy like a jalapeño or lettuce.",
+   comparison:"Depending on price and if added to the burger deal it would be a good option for me. Definitely comparable to the burgers!",
+   presentation:"Try not to put the pickle underneath the fries. Bring some wet wipes with the honey bun."},
+  {name:"Zac Platt",loc:"Van Wert",sw:"HHP",date:"Apr 11",round:"weekend",sentiment:"mixed",
+   toppings:"Something crunchy would be a nice addition.",
+   comparison:"Good — definitely comparable to the burgers.",
+   presentation:"Bring wet naps — the honey gets on your hands."},
+  {name:"Kristin Wannemacher",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Great toppings, well balanced.",
+   comparison:"Very enjoyable — would order again.",
+   presentation:"Looked and tasted great."},
+  {name:"Sally Wannemacher",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Toppings were great.",
+   comparison:"Liked it very much.",
+   presentation:"Presentation was nice."},
+  {name:"Emily Copeland",loc:"Van Wert",sw:"KFC",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"It was delicious! Very flavorful. Love the slaw — very refreshing.",
+   comparison:"This is my new favorite.",
+   presentation:"I would have preferred it not to be served on paper. The sandwiches are brought out with knives because they are so big and it was soaking and tearing up the paper."},
+  {name:"larry copeland",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"mixed",
+   toppings:"Everything was very tasty and flavorful — only complaint was too much ranch seasoning on the actual chicken itself.",
+   comparison:"My new favorite.",
+   presentation:"No complaints at all. Look great."},
+  {name:"Lonnie Lundy",loc:"Van Wert",sw:"Classic",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Best chicken sandwich I ever had.",
+   comparison:"I love the chicken sandwich — definitely put it on the menu.",
+   presentation:"Staff at Van Wert is excellent."},
+  {name:"Brayden Kill",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Yes the toppings belong on top of the sandwich.",
+   comparison:"Absolutely!",
+   presentation:"The pickle adds character and looks elegant."},
+  {name:"Michelle Gunter",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Bacon is very good and crunchy.",
+   comparison:"I love the breading on the chicken. The sandwich is huge. Very filling.",
+   presentation:"Everything looks great. It's a huge sandwich. You could definitely share it."},
+  {name:"Kristi Bauer",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"mixed",
+   toppings:"Toppings were great — the only downfall was the ranch seasoning on the chicken. It coated your mouth weird.",
+   comparison:"Would definitely order again but request no ranch seasoning.",
+   presentation:"Fries could have been spread around the sandwich more — looked like there was something missing on the plate with the empty space."},
+  {name:"Denise Doiron-Serafini",loc:"Van Wert",sw:"Classic",date:"Apr 11",round:"weekend",sentiment:"mixed",
+   toppings:"Tasty but too much.",
+   comparison:"The best sandwich you have on the menu.",
+   presentation:"Presentation was fabulous. The size of the sandwich is huge, far too many toppings makes it messy to eat. But still juicy tender and delicious."},
+  {name:"Eric Gunter",loc:"Van Wert",sw:"Classic",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Very good. Love the fresh tomato.",
+   comparison:"The breading is very good.",
+   presentation:"The sandwich is really big. A very hearty meal."},
+  {name:"Ethan Kemler",loc:"Van Wert",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"neutral",
+   toppings:"No.",
+   comparison:"Pretty good.",
+   presentation:"Chicken is a little big for bun."},
+  {name:"Melissa McCreary",loc:"Hilliard",sw:"KFC",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Perfection. Cole slaw and the taste was great.",
+   comparison:"Very comparable. Would buy it if on menu.",
+   presentation:"Presentation was great."},
+  {name:"Fred Muller",loc:"Hilliard",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Chicken sandwich was amazing. Perfect toppings — the only thing I could maybe say is use a thicker ranch.",
+   comparison:"Really enjoyed the chicken sandwich. Chicken bacon ranch is by far gonna be my favorite.",
+   presentation:"Not sure on the garnish for the Korean barbecue, but it should definitely not be a pickle."},
+  {name:"John Kennedy",loc:"Hilliard",sw:"CBR",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"It was all great.",
+   comparison:"Yes — loved it better than the burger.",
+   presentation:"Looked great."},
+  {name:"Melissa McCreary",loc:"Hilliard",sw:"KFC",date:"Apr 11",round:"weekend",sentiment:"positive",
+   toppings:"Perfection. Cole slaw and the taste was great.",
+   comparison:"Very comparable. Would buy it if on menu.",
+   presentation:"Presentation was great."},
+  {name:"Todd Miller",loc:"Van Wert",sw:"CBR",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Would not change any of the toppings. Very good chicken sandwich.",
+   comparison:"Would definitely order one of the chicken sandwiches from time to time. Can never go wrong when ordering from Beer Barrel.",
+   presentation:"Chicken sandwich was bigger than was expecting."},
+  {name:"Marcia Miller",loc:"Van Wert",sw:"Classic",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Perfect — would not change a thing!! Might be good with hot honey too!!",
+   comparison:"Love the burgers but chicken is my fav!! It's a tie for me!",
+   presentation:"Presentation was great!!! The chicken is so thick!"},
+  {name:"Lisa Rhonehouse",loc:"Van Wert",sw:"CBR",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Amazing.",
+   comparison:"The most tender piece of chicken I have ever had. Great flavor!",
+   presentation:"Looked delicious."},
+  {name:"Nate Hoverman",loc:"Van Wert",sw:"CBR",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"I don't love pickles but they added a bit of crunch which I liked. Good amount of ranch, not too much.",
+   comparison:"Definitely moves to top! Chicken was perfectly crispy and juicy at the same time. Bacon was crispy. Bun holds up to all the juices.",
+   presentation:"I stuck the knife in it. Melissa told me not to! Ha"},
+  {name:"Jennifer Boyce",loc:"Van Wert",sw:"CBR",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Everything was delicious.",
+   comparison:"Will get this sandwich before I will get a hamburger again.",
+   presentation:"Great."},
+  {name:"Ryan Agler",loc:"Van Wert",sw:"CBR",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Could add some cheese.",
+   comparison:"It was really good — I like it better than the smash burgers. The thin breading is better than the thick breading on your regular chicken.",
+   presentation:"Good."},
+  {name:"James Mayer",loc:"Hilliard",sw:"HHP",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Pimento was fantastic and the hot paired perfectly.",
+   comparison:"It's great — I'd order for sure if it was on the menu.",
+   presentation:"Spot on."},
+  {name:"Michelle Calloway",loc:"Hilliard",sw:"Classic",date:"Apr 12",round:"weekend",sentiment:"mixed",
+   toppings:"The toppings were great. They were very simple but tasty.",
+   comparison:"The sandwich was just okay. I wish it had more seasoning in the breading and in the actual piece of chicken. But the chicken was juicy and was a generous portion.",
+   presentation:"I liked the pickle and the knife that came with it to cut the sandwich."},
+  {name:"Izabela Forbes",loc:"Hilliard",sw:"HHP",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"The pimento was spicy in a very good way! Great texture too.",
+   comparison:"Yes! A fun flavor and different compared to other sandwiches.",
+   presentation:"It was well done!"},
+  {name:"Kayleh Forbes",loc:"Hilliard",sw:"Classic",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"Very well done!",
+   comparison:"This is definitely my favorite of the sandwiches/burgers I have tried.",
+   presentation:"Looks appetizing, presentation was great."},
+  {name:"Michelle Anderson",loc:"Hilliard",sw:"KFC",date:"Apr 12",round:"weekend",sentiment:"positive",
+   toppings:"The sauce had the perfect amount of heat — flavorful without being painful. The coleslaw was understated but recognizable. It was well put together without being too messy.",
+   comparison:"It is the first time I've had anything but the pizza but would definitely order it again!",
+   presentation:"The breading was dark so it made me a little hesitant — which was totally unfounded after trying it."},
+  {name:"Nya Hairston",loc:"Hilliard",sw:"CBR",date:"Apr 12",round:"weekend",sentiment:"mixed",
+   toppings:"There was too much ranch and the pickles were overwhelming. Ranch should probably only go on the bun.",
+   comparison:"The sandwich was good. It would have been better with reduced toppings. The chicken was already flavorful.",
+   presentation:"I thought the presentation was great."},
+  // Apr 13
+  {name:"Angela Harting",loc:"Van Wert",sw:"Classic",date:"Apr 13",round:"weekend",sentiment:"positive",
+   toppings:"Very moist and crispy!!! Flavor was really good. The classic sauce that is on the bun is very good! Yeah, I would definitely order this again! Melissa really sold us on this — great job.",
+   comparison:"It was right up there!!",
+   presentation:"Very nice."},
+  {name:"Lori Staley",loc:"Van Wert",sw:"KFC",date:"Apr 13",round:"weekend",sentiment:"positive",
+   toppings:"The toppings were great! A little creamy with a kick and the slaw was a great added touch of flavor. I wouldn't change a thing. It was a bit messy but worth the extra napkins for the flavor.",
+   comparison:"I liked it better than what I've had. It had a different twist to it.",
+   presentation:"The presentation was great! Definitely a big sandwich. I will have lunch for tomorrow at work."},
+  {name:"Blaine King",loc:"Hilliard",sw:"CBR",date:"Apr 13",round:"weekend",sentiment:"positive",
+   toppings:"Good portions.",
+   comparison:"Very good.",
+   presentation:"Presentation was good and plated nice."},
+  {name:"John Kennedy",loc:"Hilliard",sw:"KFC",date:"Apr 13",round:"weekend",sentiment:"positive",
+   toppings:"Had the chicken ranch last week but this was by far the better of the two.",
+   comparison:"Hard draw between it and the smasher with bacon.",
+   presentation:"Nice presentation."},
+  {name:"Fred Muller",loc:"Hilliard",sw:"KFC",date:"Apr 13",round:"weekend",sentiment:"mixed",
+   toppings:"The fresh cabbage slaw is awesome. I definitely wouldn't have picked it but really enjoyed it.",
+   comparison:"It's a hard toss up. I really like the double smash add bacon, but this chicken sandwich was pretty good.",
+   presentation:"Questioning the pickle being from Korea — maybe add a different garnishment, but overall presentation was pretty good."}
+];
+
+// ── CHART DATA ──────────────────────────────────────────────────
+const chartData = {
+  weekend:{
+    sentiment:{
+      labels:['Hot Honey Pimento (4)','Korean Fried Chicken (6)','Chicken Bacon Ranch (17)','Classic (7)'],
+      positive:[2,5,12,5], mixed:[2,1,4,2], neutral:[0,0,1,0]
     },
     themes:{
-      labels:['Would reorder / add to menu','Presentation praised','Breading & chicken quality','Better than other items','Portion size notable','Ranch seasoning too heavy','Pickle placement issue','Paper liner issue','Wants topping variety'],
-      data:[14,15,8,7,5,4,2,2,2],
+      labels:['Would reorder / add to menu','Presentation praised','Breading & chicken quality','Better than other items','Portion size notable','Ranch seasoning too heavy','Pickle placement/garnish','Paper liner issue','Wants topping variety'],
+      data:[18,18,10,9,7,4,4,2,3],
       colors:['#185FA5','#1D9E75','#185FA5','#1D9E75','#EF9F27','#D85A30','#EF9F27','#EF9F27','#888780']
     },
-    locSandwich:{ vw:[2,1,13,4], hl:[2,2,3,2] },
-    locSentiment:{ vw:[14,5,1], hl:[7,2,0] },
+    locSandwich:{vw:[2,3,14,5],hl:[2,3,3,2]},
+    locSentiment:{vw:[16,5,1],hl:[9,2,0]},
     execution:{
-      labels:['Ranch seasoning too heavy','Chicken too large for bun','Paper liner gets soggy','Pickle placed under fries','Wants wet naps with honey'],
-      data:[4,3,2,2,1],
-      colors:['#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27']
+      labels:['Ranch seasoning too heavy','Chicken too large for bun','Pickle placement/garnish','Paper liner gets soggy','Wants wet naps'],
+      data:[4,3,4,2,2],colors:['#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27']
     },
     callouts:[
-      {c:'#EF9F27', t:'"Everything was very tasty — only complaint was too much ranch seasoning on the chicken itself."', n:'Larry Copeland · Van Wert · CBR'},
-      {c:'#1D9E75', t:'"The most tender piece of chicken I have ever had. Great flavor!"', n:'Lisa Rhonehouse · Van Wert · CBR'},
-      {c:'#1D9E75', t:'"This is my new favorite — love the slaw, very refreshing."', n:'Emily Copeland · Van Wert · KFC'},
-      {c:'#EF9F27', t:'"I would have preferred it not served on paper — juice soaks through with the knife in it."', n:'Emily Copeland · Van Wert · KFC'}
+      {c:'#EF9F27',t:'"Everything was very tasty — only complaint was too much ranch seasoning on the chicken itself."',n:'Larry Copeland · Van Wert · CBR'},
+      {c:'#1D9E75',t:'"The most tender piece of chicken I have ever had. Great flavor!"',n:'Lisa Rhonehouse · Van Wert · CBR'},
+      {c:'#1D9E75',t:'"This is my new favorite — love the slaw, very refreshing."',n:'Emily Copeland · Van Wert · KFC'},
+      {c:'#EF9F27',t:'"Questioning the pickle being from Korea — maybe add a different garnishment."',n:'Fred Muller · Hilliard · KFC'}
     ],
     notes:{
-      t1:'Weekend: CBR dominated with 16 of 29 responses. KFC had a clean sweep — all 3 respondents strongly positive. CBR mixed feedback concentrated around ranch seasoning intensity on the chicken. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.',
-      t3:'Weekend: Van Wert strongly favored CBR (13 of 20 responses). Hilliard had more variety across all 4 sandwiches. Sentiment was strong at both locations — Van Wert had slightly more mixed responses, mostly tied to ranch seasoning feedback.',
-      t4:'Ranch seasoning directly on the chicken breast emerged as the dominant new issue this weekend — 4 separate respondents flagged it. Presentation was broadly praised; the paper liner is a recurring minor complaint across both rounds.'
+      t1:'Full weekend: CBR dominated with 17 of 34 sandwich instances. KFC continued its strong performance (5 of 6 positive). CBR mixed feedback concentrated around ranch seasoning applied directly to the chicken. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.',
+      t3:'Van Wert (22 responses) strongly favored CBR (14 instances). Hilliard (12 responses) was more evenly distributed. Sentiment was strong at both locations.',
+      t4:'Ranch seasoning directly on the chicken emerged as the dominant new issue — 4 respondents flagged it. Pickle placement/garnish also came up 4 times (under fries, and questions about authenticity for KFC). Paper liner is a recurring complaint.'
     }
   },
-  initial: {
+  initial:{
     sentiment:{
       labels:['Hot Honey Pimento (15)','Korean Fried Chicken (10)','Chicken Bacon Ranch (11)','Classic (7)'],
       positive:[6,9,10,6], mixed:[8,1,1,1], neutral:[1,0,0,0]
@@ -177,164 +530,169 @@ const data = {
       data:[12,20,10,6,6,5,3,3,2],
       colors:['#185FA5','#1D9E75','#185FA5','#EF9F27','#1D9E75','#EF9F27','#888780','#888780','#D85A30']
     },
-    locSandwich:{ vw:[9,7,7,4], hl:[6,3,4,3] },
-    locSentiment:{ vw:[18,5,1], hl:[10,5,0] },
+    locSandwich:{vw:[9,7,7,4],hl:[6,3,4,3]},
+    locSentiment:{vw:[18,5,1],hl:[10,5,0]},
     execution:{
       labels:['Sticky/messy honey','Portion too large to eat','Bun should be toasted','Paper liner on plate','Sharper knife needed','Needs more condiment'],
-      data:[2,2,1,1,1,1],
-      colors:['#D85A30','#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27']
+      data:[2,2,1,1,1,1],colors:['#D85A30','#D85A30','#EF9F27','#EF9F27','#EF9F27','#EF9F27']
     },
     callouts:[
-      {c:'#1D9E75', t:'"The presentation made me excited before I even took a bite."', n:'Brian Neilon · Hilliard · CBR'},
-      {c:'#EF9F27', t:'"Too much chicken made it hard to bite — the honey got on my hands."', n:'Corina Collins · Hilliard · HHP'},
-      {c:'#EF9F27', t:'"Hot honey on top of the bun made it sticky."', n:'Tammy Hayes · Hilliard · HHP'},
-      {c:'#1D9E75', t:'"Portion is enough for 2 people — buns fluffy, whole sandwich looked great."', n:'Sarah Fitch · Hilliard · HHP'}
+      {c:'#1D9E75',t:'"The presentation made me excited before I even took a bite."',n:'Brian Neilon · Hilliard · CBR'},
+      {c:'#EF9F27',t:'"Too much chicken made it hard to bite — the honey got on my hands."',n:'Corina Collins · Hilliard · HHP'},
+      {c:'#EF9F27',t:'"Hot honey on top of the bun made it sticky."',n:'Tammy Hayes · Hilliard · HHP'},
+      {c:'#1D9E75',t:'"Portion is enough for 2 people — buns fluffy, whole sandwich looked great."',n:'Sarah Fitch · Hilliard · HHP'}
     ],
     notes:{
-      t1:'Initial round: some respondents tried multiple sandwiches — counts reflect sandwich instances (43 total) not unique respondents (39). Mixed feedback was concentrated almost entirely in HHP. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.',
-      t3:'Initial round: Van Wert had 3 respondents try 2 sandwiches each. Sentiment is per unique respondent. Mixed feedback was concentrated almost entirely in HHP, mostly around stickiness and sauce quantity.',
-      t4:'28 of 39 respondents (72%) made explicitly positive presentation comments. Issues listed are the minority. Stickiness from hot honey was the dominant execution complaint in the initial round.'
+      t1:'Initial round: some respondents tried multiple sandwiches — counts reflect sandwich instances (43 total). Mixed feedback was concentrated almost entirely in HHP. HHP = Hot Honey Pimento, KFC = Korean Fried Chicken, CBR = Chicken Bacon Ranch.',
+      t3:'Initial round: Van Wert had 3 respondents try 2 sandwiches each. Sentiment is per unique respondent. Mixed feedback was concentrated almost entirely in HHP.',
+      t4:'28 of 39 respondents (72%) made explicitly positive presentation comments. Stickiness from hot honey was the dominant execution complaint in the initial round.'
     }
   }
 };
 
-let round = 'weekend';
-let charts = {};
+// ── RENDER CHARTS ───────────────────────────────────────────────
+let round='weekend', charts={};
+function destroyCharts(){Object.values(charts).forEach(c=>{if(c)c.destroy()});charts={}}
 
-function destroyCharts() { Object.values(charts).forEach(c => { if(c) c.destroy(); }); charts = {}; }
-
-function render(r) {
+function renderCharts(r){
   destroyCharts();
-  const d = data[r];
-  const label = r === 'weekend' ? 'Weekend (Apr 11–12)' : 'Initial round (Apr 2–10)';
+  const d=chartData[r];
+  const label=r==='weekend'?'Full weekend (Apr 11–14)':'Initial round (Apr 2–10)';
+  document.getElementById('t1-sub').textContent=label+' · classified from written feedback';
+  document.getElementById('t2-sub').textContent=label+' · frequency of key themes';
+  document.getElementById('t3-sub').textContent=label+' · sandwich popularity and sentiment by location';
+  document.getElementById('t4-sub').textContent=label+' · specific execution issues raised';
+  document.getElementById('t1-note').textContent=d.notes.t1;
+  document.getElementById('t3-note').textContent=d.notes.t3;
+  document.getElementById('t4-note').textContent=d.notes.t4;
+  document.getElementById('kpi-weekend').style.display=r==='weekend'?'grid':'none';
+  document.getElementById('kpi-initial').style.display=r==='initial'?'grid':'none';
+  document.getElementById('callout-list').innerHTML=d.callouts.map(c=>`<div class="callout"><div class="callout-dot" style="background:${c.c}"></div><div><div class="callout-text">${c.t}</div><div class="callout-name">${c.n}</div></div></div>`).join('');
 
-  document.getElementById('t1-sub').textContent = label + ' · classified from written feedback';
-  document.getElementById('t2-sub').textContent = label + ' · frequency of key themes';
-  document.getElementById('t3-sub').textContent = label + ' · sandwich popularity and sentiment by location';
-  document.getElementById('t4-sub').textContent = label + ' · specific execution issues raised';
-  document.getElementById('t1-note').textContent = d.notes.t1;
-  document.getElementById('t3-note').textContent = d.notes.t3;
-  document.getElementById('t4-note').textContent = d.notes.t4;
+  charts.c1=new Chart(document.getElementById('c1'),{type:'bar',data:{labels:d.sentiment.labels,datasets:[{label:'Positive',data:d.sentiment.positive,backgroundColor:pos,borderRadius:3},{label:'Mixed',data:d.sentiment.mixed,backgroundColor:mix,borderRadius:3},{label:'Neutral',data:d.sentiment.neutral,backgroundColor:neu,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}`}}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:11}}},y:{grid:{color:gridColor},ticks:{color:tickColor,stepSize:1},min:0,max:12}}}});
 
-  document.getElementById('kpi-weekend').style.display = r === 'weekend' ? 'grid' : 'none';
-  document.getElementById('kpi-initial').style.display  = r === 'initial'  ? 'grid' : 'none';
+  charts.c2=new Chart(document.getElementById('c2'),{type:'bar',data:{labels:d.themes.labels,datasets:[{data:d.themes.data,backgroundColor:d.themes.colors,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} mentions`}}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,stepSize:2},min:0},y:{grid:{display:false},ticks:{color:tickColor,font:{size:11}}}}}});
 
-  document.getElementById('callout-list').innerHTML = d.callouts.map(c =>
-    `<div class="callout"><div class="callout-dot" style="background:${c.c}"></div><div><div class="callout-text">${c.t}</div><div class="callout-name">${c.n}</div></div></div>`
-  ).join('');
+  charts.c3a=new Chart(document.getElementById('c3a'),{type:'bar',data:{labels:['HHP','KFC','CBR','Classic'],datasets:[{label:'Van Wert',data:d.locSandwich.vw,backgroundColor:vw,borderRadius:3},{label:'Hilliard',data:d.locSandwich.hl,backgroundColor:hl,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:11}}},y:{grid:{color:gridColor},ticks:{color:tickColor,stepSize:2},min:0,max:16}}}});
 
-  charts.c1 = new Chart(document.getElementById('c1'), {
-    type:'bar',
-    data:{
-      labels:d.sentiment.labels,
-      datasets:[
-        {label:'Positive', data:d.sentiment.positive, backgroundColor:pos, borderRadius:3},
-        {label:'Mixed',    data:d.sentiment.mixed,    backgroundColor:mix, borderRadius:3},
-        {label:'Neutral',  data:d.sentiment.neutral,  backgroundColor:neu, borderRadius:3}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y}`}}},
-      scales:{
-        x:{grid:{color:gridColor}, ticks:{color:tickColor, font:{size:11}}},
-        y:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:1}, min:0, max:12}
-      }
-    }
-  });
+  charts.c3b=new Chart(document.getElementById('c3b'),{type:'bar',data:{labels:['Van Wert','Hilliard'],datasets:[{label:'Positive',data:[d.locSentiment.vw[0],d.locSentiment.hl[0]],backgroundColor:pos,borderRadius:3},{label:'Mixed',data:[d.locSentiment.vw[1],d.locSentiment.hl[1]],backgroundColor:mix,borderRadius:3},{label:'Neutral',data:[d.locSentiment.vw[2],d.locSentiment.hl[2]],backgroundColor:neu,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,font:{size:11}}},y:{grid:{color:gridColor},ticks:{color:tickColor,stepSize:2},min:0,max:22}}}});
 
-  charts.c2 = new Chart(document.getElementById('c2'), {
-    type:'bar',
-    data:{
-      labels:d.themes.labels,
-      datasets:[{data:d.themes.data, backgroundColor:d.themes.colors, borderRadius:3}]
-    },
-    options:{
-      indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} mentions`}}},
-      scales:{
-        x:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:2}, min:0},
-        y:{grid:{display:false}, ticks:{color:tickColor, font:{size:11}}}
-      }
-    }
-  });
-
-  charts.c3a = new Chart(document.getElementById('c3a'), {
-    type:'bar',
-    data:{
-      labels:['HHP','KFC','CBR','Classic'],
-      datasets:[
-        {label:'Van Wert', data:d.locSandwich.vw, backgroundColor:vw, borderRadius:3},
-        {label:'Hilliard', data:d.locSandwich.hl, backgroundColor:hl, borderRadius:3}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{grid:{color:gridColor}, ticks:{color:tickColor, font:{size:11}}},
-        y:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:2}, min:0, max:16}
-      }
-    }
-  });
-
-  charts.c3b = new Chart(document.getElementById('c3b'), {
-    type:'bar',
-    data:{
-      labels:['Van Wert','Hilliard'],
-      datasets:[
-        {label:'Positive', data:[d.locSentiment.vw[0],d.locSentiment.hl[0]], backgroundColor:pos, borderRadius:3},
-        {label:'Mixed',    data:[d.locSentiment.vw[1],d.locSentiment.hl[1]], backgroundColor:mix, borderRadius:3},
-        {label:'Neutral',  data:[d.locSentiment.vw[2],d.locSentiment.hl[2]], backgroundColor:neu, borderRadius:3}
-      ]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{grid:{color:gridColor}, ticks:{color:tickColor, font:{size:11}}},
-        y:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:2}, min:0, max:22}
-      }
-    }
-  });
-
-  charts.c4 = new Chart(document.getElementById('c4'), {
-    type:'bar',
-    data:{
-      labels:d.execution.labels,
-      datasets:[{data:d.execution.data, backgroundColor:d.execution.colors, borderRadius:3}]
-    },
-    options:{
-      indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} mention${ctx.parsed.x>1?'s':''}`}}},
-      scales:{
-        x:{grid:{color:gridColor}, ticks:{color:tickColor, stepSize:1}, min:0, max:5},
-        y:{grid:{display:false}, ticks:{color:tickColor, font:{size:11}}}
-      }
-    }
-  });
+  charts.c4=new Chart(document.getElementById('c4'),{type:'bar',data:{labels:d.execution.labels,datasets:[{data:d.execution.data,backgroundColor:d.execution.colors,borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.x} mention${ctx.parsed.x>1?'s':''}`}}},scales:{x:{grid:{color:gridColor},ticks:{color:tickColor,stepSize:1},min:0,max:5},y:{grid:{display:false},ticks:{color:tickColor,font:{size:11}}}}}});
 }
 
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+// ── FEEDBACK SEARCH & RENDER ─────────────────────────────────────
+let activeRound='all', activeLoc='all', activeSw='all';
+
+function highlight(text, query){
+  if(!query) return text;
+  const escaped=query.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return text.replace(new RegExp(`(${escaped})`, 'gi'), '<span class="highlight">$1</span>');
+}
+
+function sentimentBadge(s){
+  if(s==='positive') return '<span class="badge badge-pos">Positive</span>';
+  if(s==='mixed') return '<span class="badge badge-mix">Mixed</span>';
+  return '<span class="badge badge-neu">Neutral</span>';
+}
+
+function renderFeedback(){
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  let items=allFeedback.filter(r=>{
+    if(activeRound!=='all'&&r.round!==activeRound) return false;
+    if(activeLoc!=='all'&&r.loc!==activeLoc) return false;
+    if(activeSw!=='all'){
+      const swMap={'HHP':'HHP','KFC':'KFC','CBR':'CBR','Classic':'Classic'};
+      if(r.sw!==activeSw) return false;
+    }
+    if(q){
+      const blob=[r.name,r.loc,r.sw,r.toppings,r.comparison,r.presentation].join(' ').toLowerCase();
+      return blob.includes(q);
+    }
+    return true;
+  });
+
+  document.getElementById('result-count').textContent=`Showing ${items.length} of ${allFeedback.length} responses`;
+
+  if(items.length===0){
+    document.getElementById('feedback-grid').innerHTML='<div class="no-results">No responses match your search or filters.</div>';
+    return;
+  }
+
+  document.getElementById('feedback-grid').innerHTML=items.map(r=>{
+    const h=t=>highlight(t,q);
+    const swColors={'HHP':'#534ab7','KFC':'#0f6e56','CBR':'#BA7517','Classic':'#3c3489'};
+    const swBg={'HHP':'#edeafe','KFC':'#e1f5ee','CBR':'#faeeda','Classic':'#eeedfe'};
+    return `<div class="fb-card">
+      <div class="fb-header">
+        <div>
+          <div class="fb-name">${h(r.name)}</div>
+          <div class="fb-meta">${r.date} · ${r.round==='weekend'?'Weekend (Apr 11–14)':'Initial round (Apr 2–10)'}</div>
+        </div>
+        <div class="fb-badges">
+          ${sentimentBadge(r.sentiment)}
+          <span class="badge badge-loc">${r.loc}</span>
+          <span class="badge" style="background:${swBg[r.sw]};color:${swColors[r.sw]}">${r.sw}</span>
+        </div>
+      </div>
+      <div class="fb-fields">
+        <div class="fb-field"><label>Toppings feedback</label><p>${h(r.toppings)}</p></div>
+        <div class="fb-field"><label>vs. other menu items</label><p>${h(r.comparison)}</p></div>
+        <div class="fb-field"><label>Presentation</label><p>${h(r.presentation)}</p></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── EVENT LISTENERS ──────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', renderFeedback);
+
+document.querySelectorAll('[data-filter]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeRound=btn.dataset.filter;
+    renderFeedback();
+  });
+});
+document.querySelectorAll('[data-filter-loc]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-filter-loc]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeLoc=btn.dataset.filterLoc;
+    renderFeedback();
+  });
+});
+document.querySelectorAll('[data-filter-sw]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-filter-sw]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeSw=btn.dataset.filterSw;
+    renderFeedback();
+  });
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(btn.dataset.tab).classList.add('active');
-    window.dispatchEvent(new Event('resize'));
+    if(btn.dataset.tab==='t5') renderFeedback();
+    else window.dispatchEvent(new Event('resize'));
   });
 });
 
-document.querySelectorAll('.round-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.round-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.round-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.round-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    round = btn.dataset.round;
-    render(round);
+    round=btn.dataset.round;
+    renderCharts(round);
   });
 });
 
-render('weekend');
+// ── INIT ─────────────────────────────────────────────────────────
+renderCharts('weekend');
 </script>
 </body>
 </html>
